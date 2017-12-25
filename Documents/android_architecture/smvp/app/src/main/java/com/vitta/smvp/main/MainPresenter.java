@@ -58,10 +58,12 @@ class MainPresenter {
     void invokeTools() {
 
     }
+
     private int mPage = 1;
 
     public void refreshData() {
-        DataManager.getInstance().getFans(createMap(1))
+        mPage = 1;
+        DataManager.getInstance().getFans(createMap(mPage))
                 .compose(RxUtil.<BaseCodeBeen<List<MineFansBeen>>>handleThread()) // 处理线程问题
                 .compose(RxUtil.<List<MineFansBeen>>handleResult())//统一处理 code message
                 .subscribeWith(new CommonSubscriber<List<MineFansBeen>>(mainView) {
@@ -103,6 +105,12 @@ class MainPresenter {
                     @Override
                     protected void onNextNotEmpty(List<MineFansBeen> mineFansBeens) {
                         mainView.loadUserList(mineFansBeens);
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+                        super.onError(t);
+                        --mPage;
                     }
                 });
 //        apiService.getMineFansBeen(createMap(++mPage))
