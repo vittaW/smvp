@@ -1,7 +1,7 @@
 package com.vitta.smvp.main;
 
 import com.vitta.smvp.base.BaseView;
-import com.vitta.smvp.model.MineFansBeen;
+import com.vitta.smvp.model.http.been.MineFansBeen;
 
 import java.util.List;
 
@@ -15,6 +15,5 @@ public interface MainView extends BaseView{
 
     void refreshUserList(List<MineFansBeen> list);
     void loadUserList(List<MineFansBeen> list);
-    void loadEnd();
 
 }

@@ -14,10 +14,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.vitta.smvp.R;
-import com.vitta.smvp.model.MineFansBeen;
+import com.vitta.smvp.model.http.been.MineFansBeen;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //连接Presenter
-        mainPresenter = new MainPresenter(this,this);
+        mainPresenter = new MainPresenter(this, this);
         //toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         mainPresenter.setToolBar(toolbar);
@@ -56,21 +57,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //RecyclerView 初始化
         mSwipe = (SwipeRefreshLayout) findViewById(R.id.swipe);
         mRecycler = (RecyclerView) findViewById(R.id.recycler);
-        mRecycler.setLayoutManager(new GridLayoutManager(this,2));
+        mRecycler.setLayoutManager(new GridLayoutManager(this, 2));
         mAdapter = new MineFansAdapter(null);
         mRecycler.setAdapter(mAdapter);
-        mAdapter.setOnLoadMoreListener(this,mRecycler);
+        mAdapter.setOnLoadMoreListener(this, mRecycler);
         mSwipe.setOnRefreshListener(this);
         refreshData();
     }
 
+    private boolean isRefresh;
+
     private void refreshData() {
-        mSwipe.setRefreshing(true);
+        isRefresh = true;
+        stateLoading();
         mainPresenter.refreshData();
     }
 
     @Override
     public void onLoadMoreRequested() {
+        isRefresh = false;
+        stateLoading();
         mainPresenter.loadData();
     }
 
@@ -79,37 +85,59 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         refreshData();
     }
 
+
+    //-------------main-----------------------------------------------------------------------------
     @Override
     public void refreshUserList(List<MineFansBeen> list) {
-        mSwipe.setRefreshing(false);
         mAdapter.setNewData(list);
     }
 
     @Override
     public void loadUserList(List<MineFansBeen> list) {
         mAdapter.addData(list);
+    }
+
+    @Override
+    public void stateMain() {
+        isRefresh = false;
         mAdapter.loadMoreComplete();
-    }
-
-    @Override
-    public void loadEnd() {
-        mAdapter.loadMoreEnd();
-    }
-
-    @Override
-    public void loadError(String message) {
-        mAdapter.loadMoreFail();
         mSwipe.setRefreshing(false);
     }
+    //-------------main-----------------------------------------------------------------------------
 
     @Override
-    public void refreshEmpty() {
-        mAdapter.setEmptyView(R.layout.empty);
-        mSwipe.setRefreshing(false);
+    public void stateLoading() {
+        if (isRefresh) {
+            mSwipe.setRefreshing(true);
+        }
     }
 
-    //还差刷新错误的状态没有写
+    @Override
+    public void stateEmpty() {
+        if (isRefresh) {
+            mAdapter.setEmptyView(R.layout.empty);
+            mSwipe.setRefreshing(false);
+        } else {
+            mAdapter.loadMoreEnd();
+        }
+        isRefresh = false;
+    }
 
+    @Override
+    public void stateError() {
+        if (isRefresh) {
+            mAdapter.setEmptyView(R.layout.error);
+            mSwipe.setRefreshing(false);
+        } else {
+            mAdapter.loadMoreFail();
+        }
+        isRefresh = false;
+    }
+
+    @Override
+    public void showErrorMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
 
 
 

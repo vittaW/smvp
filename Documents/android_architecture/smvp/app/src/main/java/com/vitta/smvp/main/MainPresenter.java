@@ -5,11 +5,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import com.vitta.smvp.base.BaseCodeBeen;
-import com.vitta.smvp.base.CommenObserver;
-import com.vitta.smvp.model.MineFansBeen;
-import com.vitta.smvp.model.http.ApiService;
+import com.vitta.smvp.base.CommonSubscriber;
+import com.vitta.smvp.model.DataManager;
+import com.vitta.smvp.model.http.RxUtil;
+import com.vitta.smvp.model.http.been.MineFansBeen;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,8 +17,6 @@ import java.util.Map;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * 作者：王文婷 邮箱：WVitta@126.com
@@ -60,30 +58,32 @@ class MainPresenter {
     void invokeTools() {
 
     }
-
-    private ApiService apiService = new Retrofit.Builder()
-            .addConverterFactory(GsonConverterFactory.create())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .baseUrl("https://api.xiaomatv.cn")
-            .build().create(ApiService.class);
-
     private int mPage = 1;
 
     public void refreshData() {
-        apiService.getMineFansBeen(createMap(1))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new CommenObserver<List<MineFansBeen>>(mainView) {
+        DataManager.getInstance().getFans(createMap(1))
+                .compose(RxUtil.<BaseCodeBeen<List<MineFansBeen>>>handleThread()) // 处理线程问题
+                .compose(RxUtil.<List<MineFansBeen>>handleResult())//统一处理 code message
+                .subscribeWith(new CommonSubscriber<List<MineFansBeen>>(mainView) {
                     @Override
-                    public void onNext(BaseCodeBeen<List<MineFansBeen>> listBaseCodeBeen) {
-                        List<MineFansBeen> t = listBaseCodeBeen.getData();
-                        if (t == null || t.size() == 0) {
-                            mainView.refreshEmpty();
-                        } else {
-                            mainView.refreshUserList(t);
-                        }
+                    protected void onNextNotEmpty(List<MineFansBeen> mineFansBeens) {
+                        mainView.refreshUserList(mineFansBeens);
                     }
                 });
+//        apiService.getMineFansBeen(createMap(1))
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new CommonSubscriber<List<MineFansBeen>>(mainView) {
+//                    @Override
+//                    public void onNext(BaseCodeBeen<List<MineFansBeen>> listBaseCodeBeen) {
+//                        List<MineFansBeen> t = listBaseCodeBeen.getData();
+//                        if (t == null || t.size() == 0) {
+//                            mainView.stateEmpty();
+//                        } else {
+//                            mainView.refreshUserList(t);
+//                        }
+//                    }
+//                });
     }
 
     private Map<String, String> createMap(int page) {
@@ -96,19 +96,28 @@ class MainPresenter {
     }
 
     public void loadData() {
-        apiService.getMineFansBeen(createMap(++mPage))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new CommenObserver<List<MineFansBeen>>(mainView) {
+        DataManager.getInstance().getFans(createMap(++mPage))
+                .compose(RxUtil.<BaseCodeBeen<List<MineFansBeen>>>handleThread())
+                .compose(RxUtil.<List<MineFansBeen>>handleResult())
+                .subscribe(new CommonSubscriber<List<MineFansBeen>>(mainView) {
                     @Override
-                    public void onNext(BaseCodeBeen<List<MineFansBeen>> listBaseCodeBeen) {
-                        List<MineFansBeen> t = listBaseCodeBeen.getData();
-                        if (t == null || t.size() == 0) {
-                            mainView.loadEnd();
-                        } else {
-                            mainView.loadUserList(t);
-                        }
+                    protected void onNextNotEmpty(List<MineFansBeen> mineFansBeens) {
+                        mainView.loadUserList(mineFansBeens);
                     }
                 });
+//        apiService.getMineFansBeen(createMap(++mPage))
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new CommonSubscriber<List<MineFansBeen>>(mainView) {
+//                    @Override
+//                    public void onNext(BaseCodeBeen<List<MineFansBeen>> listBaseCodeBeen) {
+//                        List<MineFansBeen> t = listBaseCodeBeen.getData();
+//                        if (t == null || t.size() == 0) {
+//                            mainView.stateMain();
+//                        } else {
+//                            mainView.loadUserList(t);
+//                        }
+//                    }
+//                });
     }
 }

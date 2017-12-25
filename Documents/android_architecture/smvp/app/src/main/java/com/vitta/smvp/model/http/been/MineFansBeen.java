@@ -1,4 +1,4 @@
-package com.vitta.smvp.model;
+package com.vitta.smvp.model.http.been;
 
 import com.chad.library.adapter.base.entity.IExpandable;
 

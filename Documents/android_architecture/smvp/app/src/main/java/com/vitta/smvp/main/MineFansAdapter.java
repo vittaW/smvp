@@ -1,14 +1,11 @@
 package com.vitta.smvp.main;
 
 import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
-import android.widget.ImageView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.vitta.smvp.R;
-import com.vitta.smvp.base.BaseCodeBeen;
-import com.vitta.smvp.model.MineFansBeen;
+import com.vitta.smvp.model.http.been.MineFansBeen;
 
 import java.net.URLDecoder;
 import java.util.List;
