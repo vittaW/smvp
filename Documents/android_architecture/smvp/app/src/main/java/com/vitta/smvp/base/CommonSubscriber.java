@@ -55,12 +55,14 @@ public abstract class CommonSubscriber<T> extends ResourceSubscriber<T> {
         }
         if (t instanceof List){
             if (((List) t).size() > 0){
+                onNextNotEmpty(t);
                 mView.stateMain();
             }else{
                 mView.stateEmpty();
             }
+        }else {
+            onNextNotEmpty(t);
         }
-        onNextNotEmpty(t);
     }
 
     protected abstract void onNextNotEmpty(T t);

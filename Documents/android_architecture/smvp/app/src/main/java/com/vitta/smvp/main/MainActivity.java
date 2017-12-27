@@ -1,5 +1,6 @@
 package com.vitta.smvp.main;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -19,6 +20,8 @@ import android.widget.Toast;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.vitta.smvp.R;
 import com.vitta.smvp.model.http.been.MineFansBeen;
+import com.vitta.smvp.ui.StateTestActivity;
+import com.vitta.smvp.ui.test.TestActivity;
 
 import java.util.List;
 
@@ -56,13 +59,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
         //RecyclerView 初始化
         mSwipe = (SwipeRefreshLayout) findViewById(R.id.swipe);
-        mRecycler = (RecyclerView) findViewById(R.id.recycler);
+        mRecycler = (RecyclerView) findViewById(R.id.view_main);
         mRecycler.setLayoutManager(new GridLayoutManager(this, 2));
         mAdapter = new MineFansAdapter(null);
         mRecycler.setAdapter(mAdapter);
         mAdapter.setOnLoadMoreListener(this, mRecycler);
         mSwipe.setOnRefreshListener(this);
         refreshData();
+        mAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+                startActivity(new Intent(MainActivity.this, StateTestActivity.class));
+//                startActivity(new Intent(MainActivity.this, TestActivity.class));
+            }
+        });
     }
 
     private boolean isRefresh;
@@ -138,6 +148,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void showErrorMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
+
+
+
+
 
 
 

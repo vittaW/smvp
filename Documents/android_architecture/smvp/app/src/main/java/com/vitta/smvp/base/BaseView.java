@@ -21,5 +21,4 @@ public interface BaseView {
 
     void showErrorMessage(String message);
 
-
 }

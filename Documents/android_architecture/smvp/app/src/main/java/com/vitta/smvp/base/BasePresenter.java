@@ -8,17 +8,10 @@ import android.support.v7.widget.Toolbar;
  * 描述：BasePresenter
  */
 
-public class BasePresenter {
+public interface BasePresenter<T extends BaseView> {
 
-    private MVPActivity activity;
-    private BaseView view;
+    void attachView(T view);
 
-    public BasePresenter(MVPActivity activity, BaseView view) {
-        this.activity = activity;
-        this.view = view;
-    }
-
-
-
+    void detachView();
 
 }

@@ -10,7 +10,7 @@
     tools:showIn="@layout/app_bar_main">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler"
+        android:id="@+id/view_main"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
